@@ -38,7 +38,7 @@ st.markdown(
             <li>🖥️ Help with <b>cloud operations</b> like EC2 management</li>
             <li>🔎 Perform <b>EC2 analysis</b></li>
         </ul>
-        <p>✨ I act as your personal AWS operations helper to make your cloud journey easier.</p>
+        <p>✨ I act as your personal AWS Cloud operations assitant to make your cloud journey easier.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -112,4 +112,5 @@ if query:
     # Add bot reply
     st.session_state["messages"].append({"sender": "bot", "text": reply})
     st.rerun()
+
 
