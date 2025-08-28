@@ -85,12 +85,23 @@ if query:
 
     try:
         reply_json = invoke_lambda_iam(query)
-        reply = reply_json.get("reply", "⚠️ No response from Lambda")
+        reply = reply_json.get("reply", "")
+
+        # Include other keys if present
+        for key, value in reply_json.items():
+            if key != "reply" and value:
+                reply += f"\n\n🔹 {key}: {value}"
+
+        # Fallback if nothing was captured
+        if not reply:
+            reply = f"⚠️ No structured reply. Raw response:\n\n{json.dumps(reply_json, indent=2)}"
+
     except Exception as e:
         reply = f"⚠️ Error contacting Lambda: {str(e)}"
 
     # Add bot reply
     st.session_state["messages"].append({"sender": "bot", "text": reply})
     st.rerun()
+
 
 
