@@ -77,24 +77,18 @@ for msg in st.session_state["messages"]:
 # ----------------------------
 # Chat Input
 # ----------------------------
-query = st.chat_input("Type your message...")
+query = st.chat_input("Type your message...")  # clears automatically after sending
 
 if query:
+    # Add user message
     st.session_state["messages"].append({"sender": "user", "text": query})
 
-    with st.status("🤖 Working on your request, this may take a few seconds...", expanded=True) as status:
-        try:
-            reply_json = invoke_lambda_iam(query)
+    try:
+        reply_json = invoke_lambda_iam(query)
+        reply = reply_json.get("reply", "⚠️ No response from Lambda")
+    except Exception as e:
+        reply = f"⚠️ Error contacting Lambda: {str(e)}"
 
-            # always take the "reply" field if present, otherwise dump raw JSON
-            reply = reply_json.get("reply", "")
-            if not reply:
-                reply = json.dumps(reply_json, indent=2)
-
-        except Exception as e:
-            reply = f"⚠️ Error contacting Lambda: {str(e)}"
-
-        status.update(label="✅ Response received", state="complete", expanded=False)
-
+    # Add bot reply
     st.session_state["messages"].append({"sender": "bot", "text": reply})
     st.rerun()
