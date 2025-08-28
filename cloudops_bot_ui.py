@@ -52,14 +52,14 @@ if "messages" not in st.session_state:
         {"sender": "bot", "text": "Hello 👋, I’m your CloudOps Assistant. How can I help you today?"}
     ]
 
-# # ----------------------------
-# # Display Chat History
-# # ----------------------------
-# for msg in st.session_state["messages"]:
-#     if msg["sender"] == "user":
-#         st.markdown(f"**🧑 You:** {msg['text']}")
-#     else:
-#         st.markdown(f"**🤖 Bot:** {msg['text']}")
+# ----------------------------
+# Display Chat History
+# ----------------------------
+for msg in st.session_state["messages"]:
+    if msg["sender"] == "user":
+        st.markdown(f"**🧑 You:** {msg['text']}")
+    else:
+        st.markdown(f"**🤖 Bot:** {msg['text']}")
 
 # ----------------------------
 # Function to invoke Lambda
@@ -112,3 +112,4 @@ if query:
     # Add bot reply
     st.session_state["messages"].append({"sender": "bot", "text": reply})
     st.rerun()
+
