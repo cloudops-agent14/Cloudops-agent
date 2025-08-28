@@ -4,7 +4,6 @@ import requests
 from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
 import json
-import pandas as pd  # for pretty tables
 
 # Lambda Function URL (with AWS_IAM auth)
 LAMBDA_URL = "https://h5xtjthqbbwegusk5eqyvpsa7u0mlwlm.lambda-url.us-east-1.on.aws/"
@@ -67,25 +66,12 @@ def invoke_lambda_iam(query):
     return response.json()
 
 # ----------------------------
-# Helper: format structured responses
-# ----------------------------
-def format_as_table(data):
-    if isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
-        df = pd.DataFrame(data)
-        return df
-    elif isinstance(data, dict):
-        return "\n".join([f"- **{k}**: {v}" for k, v in data.items()])
-    else:
-        return str(data)
-
-# ----------------------------
 # Display Chat History
 # ----------------------------
 for msg in st.session_state["messages"]:
     if msg["sender"] == "user":
         st.markdown(f"🧑 **You:** {msg['text']}")
     else:
-        # allow markdown, tables, etc. directly
         st.markdown(f"🤖 **Bot:** {msg['text']}", unsafe_allow_html=True)
 
 # ----------------------------
@@ -100,19 +86,10 @@ if query:
         try:
             reply_json = invoke_lambda_iam(query)
 
+            # always take the "reply" field if present, otherwise dump raw JSON
             reply = reply_json.get("reply", "")
-
-            # format structured fields
-            for key, value in reply_json.items():
-                if key != "reply" and value:
-                    formatted = format_as_table(value)
-                    if isinstance(formatted, pd.DataFrame):
-                        st.dataframe(formatted, use_container_width=True)
-                    else:
-                        reply += "\n\n" + formatted
-
             if not reply:
-                reply = "⚠️ No response from Lambda"
+                reply = json.dumps(reply_json, indent=2)
 
         except Exception as e:
             reply = f"⚠️ Error contacting Lambda: {str(e)}"
@@ -121,4 +98,3 @@ if query:
 
     st.session_state["messages"].append({"sender": "bot", "text": reply})
     st.rerun()
-
