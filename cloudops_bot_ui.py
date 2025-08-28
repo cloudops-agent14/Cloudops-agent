@@ -4,7 +4,7 @@ import requests
 from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
 import json
-import pandas as pd
+import time
 
 # Lambda Function URL (with AWS_IAM auth)
 LAMBDA_URL = "https://h5xtjthqbbwegusk5eqyvpsa7u0mlwlm.lambda-url.us-east-1.on.aws/"
@@ -48,21 +48,16 @@ st.markdown(
         box-shadow: 0px 2px 6px rgba(0,0,0,0.15);
     }
     .user-msg {
-        background-color: #2C2F33; 
+        background-color: #2C2F33; /* Green bubble */
         color: #F5F5F5;
         margin-left: auto;
         text-align: right;
     }
     .bot-msg {
-        background-color: #2C2F33; 
+        background-color: #2C2F33; /* Dark bubble */
         color: #F5F5F5;
         margin-right: auto;
         text-align: left;
-    }
-    .scrollable-table {
-        max-height: 300px;
-        overflow-y: auto;
-        display: block;
     }
     </style>
     """,
@@ -115,19 +110,6 @@ def invoke_lambda_iam(query):
     return response.json()
 
 # ----------------------------
-# Helper: format structured data nicely
-# ----------------------------
-def format_as_table(data):
-    """Convert list[dict] or dict into a markdown table or bullet list."""
-    if isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
-        df = pd.DataFrame(data)
-        return f"<div class='scrollable-table'>{df.to_markdown(index=False)}</div>"
-    elif isinstance(data, dict):
-        return "\n".join([f"- **{k}**: {v}" for k, v in data.items()])
-    else:
-        return str(data)
-
-# ----------------------------
 # Chat Input (Enter to send)
 # ----------------------------
 query = st.chat_input("Type your message...") # clears automatically after sending
@@ -140,18 +122,7 @@ if query:
     with st.status("🤖 Working on your request, this may take a few seconds...", expanded=True) as status:
         try:
             reply_json = invoke_lambda_iam(query)
-
-            # Always get base "reply"
-            reply = reply_json.get("reply", "")
-
-            # Append any structured data fields
-            for key, value in reply_json.items():
-                if key != "reply" and value:
-                    reply += "\n\n" + format_as_table(value)
-
-            if not reply:
-                reply = "⚠️ No response from Lambda"
-
+            reply = reply_json.get("reply", "⚠️ No response from Lambda")
         except Exception as e:
             reply = f"⚠️ Error contacting Lambda: {str(e)}"
 
