@@ -4,7 +4,7 @@ import requests
 from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
 import json
-import time
+import pandas as pd  # ✅ for pretty tables
 
 # Lambda Function URL (with AWS_IAM auth)
 LAMBDA_URL = "https://h5xtjthqbbwegusk5eqyvpsa7u0mlwlm.lambda-url.us-east-1.on.aws/"
@@ -40,24 +40,29 @@ st.markdown(
         border-radius: 18px;
         padding: 10px 14px;
         margin: 8px 0;
-        display: inline-block;   /* shrink to fit */
-        max-width: 70%;          /* wrap long text */
+        display: inline-block;
+        max-width: 70%;
         word-wrap: break-word;
         font-size: 15px;
         line-height: 1.4;
         box-shadow: 0px 2px 6px rgba(0,0,0,0.15);
     }
     .user-msg {
-        background-color: #2C2F33; /* Green bubble */
+        background-color: #2C2F33;
         color: #F5F5F5;
         margin-left: auto;
         text-align: right;
     }
     .bot-msg {
-        background-color: #2C2F33; /* Dark bubble */
+        background-color: #2C2F33;
         color: #F5F5F5;
         margin-right: auto;
         text-align: left;
+    }
+    .scrollable-table {
+        max-height: 300px;
+        overflow-y: auto;
+        display: block;
     }
     </style>
     """,
@@ -85,7 +90,6 @@ for msg in st.session_state["messages"]:
 # Function to invoke Lambda
 # ----------------------------
 def invoke_lambda_iam(query):
-    # Get AWS credentials from Streamlit Secrets
     aws_access_key = st.secrets["AWS_ACCESS_KEY_ID"]
     aws_secret_key = st.secrets["AWS_SECRET_ACCESS_KEY"]
     aws_region = st.secrets.get("AWS_DEFAULT_REGION", REGION)
@@ -110,25 +114,43 @@ def invoke_lambda_iam(query):
     return response.json()
 
 # ----------------------------
-# Chat Input (Enter to send)
+# Helper: format structured responses
 # ----------------------------
-query = st.chat_input("Type your message...") # clears automatically after sending
+def format_as_table(data):
+    if isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
+        df = pd.DataFrame(data)
+        return f"<div class='scrollable-table'>{df.to_markdown(index=False)}</div>"
+    elif isinstance(data, dict):
+        return "\n".join([f"- **{k}**: {v}" for k, v in data.items()])
+    else:
+        return str(data)
+
+# ----------------------------
+# Chat Input
+# ----------------------------
+query = st.chat_input("Type your message...")
 
 if query:
-    # Add user message
     st.session_state["messages"].append({"sender": "user", "text": query})
 
-    # Show a fallback loader while waiting for Lambda
     with st.status("🤖 Working on your request, this may take a few seconds...", expanded=True) as status:
         try:
             reply_json = invoke_lambda_iam(query)
-            reply = reply_json.get("reply", "⚠️ No response from Lambda")
+
+            reply = reply_json.get("reply", "")
+
+            # format any extra fields from lambda (structured data)
+            for key, value in reply_json.items():
+                if key != "reply" and value:
+                    reply += "\n\n" + format_as_table(value)
+
+            if not reply:
+                reply = "⚠️ No response from Lambda"
+
         except Exception as e:
             reply = f"⚠️ Error contacting Lambda: {str(e)}"
 
-        # Mark status as complete
         status.update(label="✅ Response received", state="complete", expanded=False)
 
-    # Add bot reply
     st.session_state["messages"].append({"sender": "bot", "text": reply})
     st.rerun()
