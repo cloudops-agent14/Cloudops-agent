@@ -38,23 +38,24 @@ st.markdown(
     <style>
     .chat-box {
         border-radius: 18px;
-        padding: 12px 16px;
+        padding: 10px 14px;
         margin: 8px 0;
-        max-width: 80%;
+        display: inline-block;   /* shrink to fit */
+        max-width: 70%;          /* wrap long text */
         word-wrap: break-word;
         font-size: 15px;
         line-height: 1.4;
         box-shadow: 0px 2px 6px rgba(0,0,0,0.15);
     }
     .user-msg {
-        background-color: #4CAF50; /* Green bubble */
-        color: white;              /* White text */
+        background-color: #2C2F33; /* Green bubble */
+        color: #F5F5F5;
         margin-left: auto;
         text-align: right;
     }
     .bot-msg {
-        background-color: #2C2F33; /* Dark bubble for bot */
-        color: #F5F5F5;            /* Light text */
+        background-color: #2C2F33; /* Dark bubble */
+        color: #F5F5F5;
         margin-right: auto;
         text-align: left;
     }
