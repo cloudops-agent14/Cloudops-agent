@@ -24,7 +24,8 @@ with st.expander("ℹ️ Who am I / What can I do?", expanded=True):
         """
         I am your **CloudOps Assistant** 🧑‍💻.  
         
-        ✅ I can provide you with **cost optimization solutions** for your AWS account.  
+        ✅ I can provide you with **Cost optimization solutions** for your AWS account.  
+        ✅ I can provide you with **Billing summary** for your AWS account.  
         ✅ I can help with **cloud operations** like **EC2 management** and **EC2 analysis**.  
         ✅ I act as your personal **AWS operations helper** to make your cloud journey easier.  
         """
@@ -120,3 +121,4 @@ if query:
 
     st.session_state["messages"].append({"sender": "bot", "text": reply})
     st.rerun()
+
