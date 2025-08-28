@@ -72,7 +72,7 @@ for msg in st.session_state["messages"]:
     if msg["sender"] == "user":
         st.markdown(f"🧑 **You:** {msg['text']}")
     else:
-        st.markdown(f"🤖 **Bot:** {msg['text']}", unsafe_allow_html=True)
+        st.code(f"🤖 **Bot:** {msg['text']}")
 
 # ----------------------------
 # Chat Input
@@ -92,3 +92,4 @@ if query:
     # Add bot reply
     st.session_state["messages"].append({"sender": "bot", "text": reply})
     st.rerun()
+
