@@ -52,6 +52,9 @@ if "messages" not in st.session_state:
         {"sender": "bot", "text": "Hello 👋, I’m your CloudOps Assistant. How can I help you today?"}
     ]
 
+if "pending_query" not in st.session_state:
+    st.session_state["pending_query"] = None
+
 # ----------------------------
 # Display Chat History
 # ----------------------------
@@ -93,19 +96,22 @@ def invoke_lambda_iam(query):
 query = st.chat_input("Type your message...")
 
 if query:
-    # 1. Show user message immediately
+    # Step 1: Show user message immediately
     st.session_state["messages"].append({"sender": "user", "text": query})
+    st.session_state["pending_query"] = query
+    st.rerun()
 
-    # 2. Call Lambda with status indicator
+# ---------------- Process Pending Query ----------------
+if st.session_state["pending_query"]:
     with st.status("🤖 Your request is loading, this may take a few seconds...", expanded=True) as status:
         try:
-            reply_json = invoke_lambda_iam(query)
+            reply_json = invoke_lambda_iam(st.session_state["pending_query"])
             reply = reply_json.get("reply", "⚠️ No response from Lambda")
         except Exception as e:
             reply = f"⚠️ Error contacting Lambda: {str(e)}"
 
-        # 3. Save bot reply
+        # Step 2: Save bot reply
         st.session_state["messages"].append({"sender": "bot", "text": reply})
+        st.session_state["pending_query"] = None
         status.update(label="✅ Response received!", state="complete", expanded=False)
-
-    st.rerun()
+        st.rerun()
