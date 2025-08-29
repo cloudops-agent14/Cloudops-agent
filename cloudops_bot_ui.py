@@ -89,29 +89,23 @@ def invoke_lambda_iam(query):
     response = requests.post(LAMBDA_URL, data=request.body, headers=dict(request.headers))
     return response.json()
 
-# ----------------------------
-# Chat Input (Enter to send & clears automatically)
-# ----------------------------
-query = st.chat_input("Type your message...")  # clears automatically after sending
+# ---------------- Chat Input ----------------
+query = st.chat_input("Type your message...")
 
 if query:
-    # Add user message
+    # 1. Show user message immediately
     st.session_state["messages"].append({"sender": "user", "text": query})
 
-    # Show a fallback loader near the chat
-    with st.status("🤖 Your request is loading... this may take some time", expanded=True) as status:
+    # 2. Call Lambda with status indicator
+    with st.status("🤖 Your request is loading, this may take a few seconds...", expanded=True) as status:
         try:
             reply_json = invoke_lambda_iam(query)
             reply = reply_json.get("reply", "⚠️ No response from Lambda")
         except Exception as e:
             reply = f"⚠️ Error contacting Lambda: {str(e)}"
 
-        # Update loader when done
-        status.update(label="✅ Response received", state="complete", expanded=False)
+        # 3. Save bot reply
+        st.session_state["messages"].append({"sender": "bot", "text": reply})
+        status.update(label="✅ Response received!", state="complete", expanded=False)
 
-    # Add bot reply
-    st.session_state["messages"].append({"sender": "bot", "text": reply})
     st.rerun()
-
-
-
