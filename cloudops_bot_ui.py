@@ -31,7 +31,7 @@ st.markdown(
         box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
     ">
         <h3 style="color:#2E7D32;">🌟 Who am I & What can I do?</h3>
-        <p>I am your <b>COMFY</b>. I can:</p>
+        <p>I am your <b>COMFY</b>. Your Cloud-ops Assistant ! I can:</p>
         <ul>
             <li>💰 Provide you with <b>cost optimization solutions</b> for your AWS account</li>
             <li>📊 Provide you with <b>billing summaries</b> for your AWS account</li>
@@ -49,7 +49,7 @@ st.markdown(
 # ----------------------------
 if "messages" not in st.session_state:
     st.session_state["messages"] = [
-        {"sender": "bot", "text": "Hello 👋, I’m your COMFY (Cloud-ops Assistant. How can I help you today?"}
+        {"sender": "bot", "text": "Hello 👋, I’m your COMFY (Cloud-ops Assistant). How can I help you today?"}
     ]
 
 if "pending_query" not in st.session_state:
@@ -115,6 +115,7 @@ if st.session_state["pending_query"]:
         st.session_state["pending_query"] = None
         status.update(label="✅ Response received!", state="complete", expanded=False)
         st.rerun()
+
 
 
 
