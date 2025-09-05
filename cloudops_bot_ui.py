@@ -49,7 +49,7 @@ st.markdown(
 # ----------------------------
 if "messages" not in st.session_state:
     st.session_state["messages"] = [
-        {"sender": "bot", "text": "Hello 👋, I’m your CloudOps Assistant. How can I help you today?"}
+        {"sender": "bot", "text": "Hello 👋, I’m your COMFY (Cloud-ops Assistant. How can I help you today?"}
     ]
 
 if "pending_query" not in st.session_state:
@@ -115,4 +115,5 @@ if st.session_state["pending_query"]:
         st.session_state["pending_query"] = None
         status.update(label="✅ Response received!", state="complete", expanded=False)
         st.rerun()
+
 
