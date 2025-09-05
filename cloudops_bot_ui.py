@@ -13,7 +13,7 @@ REGION = "us-east-1"  # replace with your Lambda region
 # Streamlit Page Config
 # ----------------------------
 st.set_page_config(page_title="I am your COMFY", page_icon="🤖", layout="centered")
-st.title("🤖 your AI CloudOps Assistant)")
+#st.title("🤖 your AI CloudOps Assistant)")
 
 # ----------------------------
 # I am your COMFY! your AI CloudOps Assistant
@@ -117,6 +117,7 @@ if st.session_state["pending_query"]:
         st.session_state["pending_query"] = None
         status.update(label="✅ Response received!", state="complete", expanded=False)
         st.rerun()
+
 
 
 
