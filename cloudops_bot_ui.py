@@ -12,8 +12,8 @@ REGION = "us-east-1"  # replace with your Lambda region
 # ----------------------------
 # Streamlit Page Config
 # ----------------------------
-st.set_page_config(page_title="CloudOps Bot", page_icon="🤖", layout="centered")
-st.title("🤖 CloudOps Assistant")
+st.set_page_config(page_title="I am your COMFY", page_icon="🤖", layout="centered")
+st.title("🤖 your AI CloudOps Assistant")
 
 # ----------------------------
 # Who am I / What can I do box
@@ -38,7 +38,7 @@ st.markdown(
             <li>🖥️ Help with <b>cloud operations</b> like EC2 management</li>
             <li>🔎 Perform <b>EC2 analysis</b></li>
         </ul>
-        <p>✨ I act as your personal AWS cloud operations assitant to make your cloud journey easier.</p>
+        <p>✨ I act as your personal operations assitant to make your cloud journey easier.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -115,3 +115,4 @@ if st.session_state["pending_query"]:
         st.session_state["pending_query"] = None
         status.update(label="✅ Response received!", state="complete", expanded=False)
         st.rerun()
+
