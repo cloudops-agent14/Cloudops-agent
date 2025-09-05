@@ -31,8 +31,8 @@ st.markdown(
         background-color: #f9f9f9;
         box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
     ">
-        <h3 style="color:#2E7D32;">🌟 I am your COMFY ! Your AI Cloud-ops Assistant</h3>
-        <h2 style="color:#2E7D32;">🌟 Your AI Cloud-ops Assistant</h2>
+        <h2 style="color:#2E7D32;">🌟 I am your COMFY ! </h2>
+        <h3 style="color:#2E7D32;"> Your AI Cloud-ops Assistant </h3>
         <p>I am <b>COMFY</b> - Who am I & What can I do? I can:</p>
         <ul>
             <li>💰 Provide you with <b>cost optimization solutions</b> for your AWS account</li>
@@ -117,6 +117,7 @@ if st.session_state["pending_query"]:
         st.session_state["pending_query"] = None
         status.update(label="✅ Response received!", state="complete", expanded=False)
         st.rerun()
+
 
 
 
