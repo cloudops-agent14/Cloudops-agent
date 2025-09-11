@@ -64,10 +64,9 @@ with col1:
     st.subheader("✨ Quick Actions")
 
     predefined_prompts = [
-        "Provide cost optimization solution for your account",
-        "List all running EC2 instances",
-        "Show billing summary of my account",
-        "Analyze my EC2 instance utilization"
+        "Provide some cost optimization solution for my account",
+        "List all running EC2 instances in my account",
+        "Show billing summary of this month"
     ]
 
     for prompt in predefined_prompts:
@@ -134,3 +133,4 @@ with col2:
             st.session_state["pending_query"] = None
             status.update(label="✅ Response received!", state="complete", expanded=False)
             st.rerun()
+
