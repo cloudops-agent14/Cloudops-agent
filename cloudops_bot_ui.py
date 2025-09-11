@@ -12,37 +12,7 @@ REGION = "us-east-1"  # replace with your Lambda region
 # ----------------------------
 # Streamlit Page Config
 # ----------------------------
-st.set_page_config(page_title="I am your COMFY", page_icon="🤖", layout="centered")
-
-# ----------------------------
-# Welcome Box
-# ----------------------------
-st.markdown(
-    """
-    <div style="
-        border: 2px solid #4CAF50; 
-        border-radius: 12px; 
-        padding: 20px; 
-        margin: 20px auto; 
-        width: 80%; 
-        text-align: left;
-        background-color: #f9f9f9;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-    ">
-        <h3 style="color:#2E7D32;"> Welcome to COMFY ! </h3>
-        <h4 style="color:#2E7D32;"> Your Intelligent Cloud Assistant. </h4>
-        <p>I am <b>COMFY</b> - Who am I & What can I do? I can:</p>
-        <ul>
-            <li>💰 Provide you with <b>cost optimization solutions</b> for your AWS account</li>
-            <li>📊 Provide you with <b>billing summaries</b> for your AWS account</li>
-            <li>🖥️ Help with <b>cloud operations</b> like EC2 management</li>
-            <li>🔎 Perform <b>EC2 analysis</b></li>
-        </ul>
-        <p>✨ I act as your personal operations assitant to make your cloud journey smoother.</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+st.set_page_config(page_title="I am your COMFY", page_icon="🤖", layout="wide")
 
 # ----------------------------
 # Session State for Chat
@@ -54,15 +24,6 @@ if "messages" not in st.session_state:
 
 if "pending_query" not in st.session_state:
     st.session_state["pending_query"] = None
-
-# ----------------------------
-# Display Chat History
-# ----------------------------
-for msg in st.session_state["messages"]:
-    if msg["sender"] == "user":
-        st.markdown(f"**🧑 You:** {msg['text']}")
-    else:
-        st.markdown(f"**🤖 Bot:** {msg['text']}")
 
 # ----------------------------
 # Function to invoke Lambda
@@ -92,48 +53,84 @@ def invoke_lambda_iam(query):
     return response.json()
 
 # ----------------------------
-# Chat Input
+# Layout: Two Columns
 # ----------------------------
-query = st.chat_input("Type your message...")
-
-if query:
-    st.session_state["messages"].append({"sender": "user", "text": query})
-    st.session_state["pending_query"] = query
-    st.rerun()
+col1, col2 = st.columns([1, 3])
 
 # ----------------------------
-# Predefined Prompts Section
+# Left Column → Quick Actions
 # ----------------------------
-st.markdown("---")
-st.subheader("✨ Quick Actions")
+with col1:
+    st.subheader("✨ Quick Actions")
 
-predefined_prompts = [
-    "Provide cost optimization solution for your account",
-    "List all running EC2 instances",
-    "Show billing summary of my account",
-    "Analyze my EC2 instance utilization"
-]
+    predefined_prompts = [
+        "Provide cost optimization solution for your account",
+        "List all running EC2 instances",
+        "Show billing summary of my account",
+        "Analyze my EC2 instance utilization"
+    ]
 
-cols = st.columns(len(predefined_prompts))
+    for prompt in predefined_prompts:
+        if st.button(prompt, use_container_width=True):
+            st.session_state["messages"].append({"sender": "user", "text": prompt})
+            st.session_state["pending_query"] = prompt
+            st.rerun()
 
-for i, prompt in enumerate(predefined_prompts):
-    if cols[i].button(prompt):
-        st.session_state["messages"].append({"sender": "user", "text": prompt})
-        st.session_state["pending_query"] = prompt
+# ----------------------------
+# Right Column → Welcome + Chat
+# ----------------------------
+with col2:
+    # Welcome Box
+    st.markdown(
+        """
+        <div style="
+            border: 2px solid #4CAF50; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin: 20px auto; 
+            text-align: left;
+            background-color: #f9f9f9;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        ">
+            <h3 style="color:#2E7D32;"> Welcome to COMFY ! </h3>
+            <h4 style="color:#2E7D32;"> Your Intelligent Cloud Assistant. </h4>
+            <p>I am <b>COMFY</b> - Who am I & What can I do? I can:</p>
+            <ul>
+                <li>💰 Provide you with <b>cost optimization solutions</b> for your AWS account</li>
+                <li>📊 Provide you with <b>billing summaries</b> for your AWS account</li>
+                <li>🖥️ Help with <b>cloud operations</b> like EC2 management</li>
+                <li>🔎 Perform <b>EC2 analysis</b></li>
+            </ul>
+            <p>✨ I act as your personal operations assistant to make your cloud journey smoother.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Chat History
+    for msg in st.session_state["messages"]:
+        if msg["sender"] == "user":
+            st.markdown(f"**🧑 You:** {msg['text']}")
+        else:
+            st.markdown(f"**🤖 Bot:** {msg['text']}")
+
+    # Chat Input
+    query = st.chat_input("Type your message...")
+    if query:
+        st.session_state["messages"].append({"sender": "user", "text": query})
+        st.session_state["pending_query"] = query
         st.rerun()
 
-# ----------------------------
-# Process Pending Query
-# ----------------------------
-if st.session_state["pending_query"]:
-    with st.status("🤖 Your request is loading, this may take a few seconds...", expanded=True) as status:
-        try:
-            reply_json = invoke_lambda_iam(st.session_state["pending_query"])
-            reply = reply_json.get("reply", "⚠️ No response from Lambda")
-        except Exception as e:
-            reply = f"⚠️ Error contacting Lambda: {str(e)}"
+    # Process Pending Query
+    if st.session_state["pending_query"]:
+        with st.status("🤖 Your request is loading, this may take a few seconds...", expanded=True) as status:
+            try:
+                reply_json = invoke_lambda_iam(st.session_state["pending_query"])
+                reply = reply_json.get("reply", "⚠️ No response from Lambda")
+            except Exception as e:
+                reply = f"⚠️ Error contacting Lambda: {str(e)}"
 
-        st.session_state["messages"].append({"sender": "bot", "text": reply})
-        st.session_state["pending_query"] = None
-        status.update(label="✅ Response received!", state="complete", expanded=False)
-        st.rerun()
+            st.session_state["messages"].append({"sender": "bot", "text": reply})
+            st.session_state["pending_query"] = None
+            status.update(label="✅ Response received!", state="complete", expanded=False)
+            st.rerun()
