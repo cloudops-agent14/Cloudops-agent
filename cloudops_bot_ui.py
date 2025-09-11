@@ -13,11 +13,9 @@ REGION = "us-east-1"  # replace with your Lambda region
 # Streamlit Page Config
 # ----------------------------
 st.set_page_config(page_title="I am your COMFY", page_icon="🤖", layout="centered")
-# st.title("🤖 your AI CloudOps Assistant)")
 
 # ----------------------------
-# I am your COMFY! your AI CloudOps Assistant
-# Who am I / What can I do box
+# Welcome Box
 # ----------------------------
 st.markdown(
     """
@@ -70,7 +68,6 @@ for msg in st.session_state["messages"]:
 # Function to invoke Lambda
 # ----------------------------
 def invoke_lambda_iam(query):
-    # Get AWS credentials from Streamlit Secrets
     aws_access_key = st.secrets["AWS_ACCESS_KEY_ID"]
     aws_secret_key = st.secrets["AWS_SECRET_ACCESS_KEY"]
     aws_region = st.secrets.get("AWS_DEFAULT_REGION", REGION)
@@ -94,16 +91,40 @@ def invoke_lambda_iam(query):
     response = requests.post(LAMBDA_URL, data=request.body, headers=dict(request.headers))
     return response.json()
 
-# ---------------- Chat Input ----------------
+# ----------------------------
+# Chat Input
+# ----------------------------
 query = st.chat_input("Type your message...")
 
 if query:
-    # Step 1: Show user message immediately
     st.session_state["messages"].append({"sender": "user", "text": query})
     st.session_state["pending_query"] = query
     st.rerun()
 
-# ---------------- Process Pending Query ----------------
+# ----------------------------
+# Predefined Prompts Section
+# ----------------------------
+st.markdown("---")
+st.subheader("✨ Quick Actions")
+
+predefined_prompts = [
+    "Provide cost optimization solution for your account",
+    "List all running EC2 instances",
+    "Show billing summary of my account",
+    "Analyze my EC2 instance utilization"
+]
+
+cols = st.columns(len(predefined_prompts))
+
+for i, prompt in enumerate(predefined_prompts):
+    if cols[i].button(prompt):
+        st.session_state["messages"].append({"sender": "user", "text": prompt})
+        st.session_state["pending_query"] = prompt
+        st.rerun()
+
+# ----------------------------
+# Process Pending Query
+# ----------------------------
 if st.session_state["pending_query"]:
     with st.status("🤖 Your request is loading, this may take a few seconds...", expanded=True) as status:
         try:
@@ -112,22 +133,7 @@ if st.session_state["pending_query"]:
         except Exception as e:
             reply = f"⚠️ Error contacting Lambda: {str(e)}"
 
-        # Step 2: Save bot reply
         st.session_state["messages"].append({"sender": "bot", "text": reply})
         st.session_state["pending_query"] = None
         status.update(label="✅ Response received!", state="complete", expanded=False)
         st.rerun()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
